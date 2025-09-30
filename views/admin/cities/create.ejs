@@ -1,0 +1,100 @@
+<div class="app-content content">
+  <div class="content-overlay"></div>
+  <div class="header-navbar-shadow"></div>
+  <div class="content-wrapper container-xxl p-0">
+    <div class="content-header row"></div>
+    <div class="content-body">
+
+      <div class="col-xl-12 col-lg-12">
+        <form id="submitForm" method="post">
+          <!-- hidden field to detect edit mode -->
+          <input type="hidden" id="city_id" name="city_id" value="<%= city ? city._id : '' %>">
+
+          <div class="card">
+            <div class="card-header">
+              <h3><%= city ? 'Edit City' : 'Create City' %></h3>
+            </div>
+            <div class="card-body">
+              <div class="row">
+
+                <!-- City Name -->
+                <div class="mb-1 col-md-6">
+                  <label for="name">City Name</label>
+                  <input type="text" class="form-control" id="name" name="name" value="<%= city ? city.name : '' %>" placeholder="Enter city name" required />
+                  <div id="name-submit_errors" class="validation-error"></div>
+                </div>
+
+                <!-- City Status -->
+                <div class="mb-1 col-md-6">
+                  <label for="status">Status</label>
+                  <select class="form-select" id="status" name="status">
+                    <option value="1" <%= city && city.status ? 'selected' : '' %>>Active</option>
+                    <option value="0" <%= city && !city.status ? 'selected' : '' %>>Inactive</option>
+                  </select>
+                  <div id="status-submit_errors" class="validation-error"></div>
+                </div>
+
+                <!-- Submit -->
+                <div class="mb-2">
+                  <button type="submit" class="btn btn-primary mt-3">
+                    <%= city ? 'Update City' : 'Save City' %>
+                  </button>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  $(document).ready(function() {
+    $('#submitForm').on('submit', function(e) {
+      e.preventDefault();
+      $('.validation-error').text('');
+
+      const formData = $(this).serialize(); // no file upload needed
+      const cityId = $('#city_id').val();
+
+      let url = '/admin/cities';
+      let method = 'POST';
+
+      if (cityId) { // editing
+        url = '/admin/cities/' + cityId;
+        method = 'PUT';
+      }
+      $('#form-loader').show();
+
+      $.ajax({
+        url: url,
+        method: method,
+        data: formData,
+        success: function(response) {
+          $('#form-loader').hide();
+          window.location.href = '/admin/cities'; // redirect after save
+        },
+        error: function(res) {
+          $('#form-loader').hide();
+          if (res.status == 400 || res.status == 422) {
+            if (res.responseJSON && res.responseJSON.errors) {
+              var error = res.responseJSON.errors;
+              $.each(error, function(key, value) {
+                $("#" + key + "-submit_errors").text(value);
+              });
+            }
+          }
+          if (res.status == 500) {
+            showErrorToast(res.responseJSON.error);
+          }
+          if (res.status == 404) {
+            showErrorToast('Something went wrong');
+          }
+        }
+      });
+    });
+  });
+</script>

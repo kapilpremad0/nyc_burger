@@ -1,0 +1,119 @@
+<div class="app-content content">
+  <div class="content-overlay"></div>
+  <div class="header-navbar-shadow"></div>
+  <div class="content-wrapper container-xxl p-0">
+    <div class="content-header row"></div>
+    <div class="content-body">
+
+      <div class="col-xl-12 col-lg-12">
+        <form id="submitForm" method="post" enctype="multipart/form-data">
+          <!-- hidden field to detect edit mode -->
+          <input type="hidden" id="category_id" name="category_id" value="<%= category ? category._id : '' %>">
+
+          <div class="card">
+            <div class="card-header">
+              <h3><%= category ? 'Edit Category' : 'Create Category' %></h3>
+            </div>
+            <div class="card-body">
+              <div class="row">
+
+                <!-- Category Name -->
+                <div class="mb-1 col-md-6">
+                  <label for="name">Category Name</label>
+                  <input type="text" class="form-control" id="name" name="name" value="<%= category ? category.name : '' %>" placeholder="Enter category name" required />
+                  <div id="name-submit_errors" class="validation-error"></div>
+                </div>
+
+                <!-- Category Status -->
+                <div class="mb-1 col-md-6">
+                  <label for="status">Status</label>
+                  <select class="form-select" id="status" name="status">
+                    <option value="1" <%= category && category.status ? 'selected' : '' %>>Active</option>
+                    <option value="0" <%= category && !category.status ? 'selected' : '' %>>Inactive</option>
+                  </select>
+                  <div id="status-submit_errors" class="validation-error"></div>
+                </div>
+
+                <!-- Category Image -->
+                <div class="mb-1 col-md-6">
+                  <label for="image">Category Image</label>
+                  <input type="file" class="form-control" id="image" name="image" />
+                  <% if (category && category.image) { %>
+                    <img src="<%= category.image_url %>" alt="Category Image" width="60" class="mt-1 rounded" />
+                  <% } %>
+                  <div id="image-submit_errors" class="validation-error"></div>
+                </div>
+
+                <!-- Description -->
+                <!-- <div class="mb-3 col-md-12">
+                  <label for="description">Description</label>
+                  <textarea class="form-control" id="description" name="description" rows="3" placeholder="Enter description"><%= category ? category.description : '' %></textarea>
+                  <div id="description-submit_errors" class="validation-error"></div>
+                </div> -->
+
+                <!-- Submit -->
+                <div class="mb-2">
+                  <button type="submit" class="btn btn-primary mt-3">
+                    <%= category ? 'Update Category' : 'Save Category' %>
+                  </button>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  $(document).ready(function() {
+    $('#submitForm').on('submit', function(e) {
+      e.preventDefault();
+      $('.validation-error').text('');
+
+      const formData = new FormData(this);
+      const categoryId = $('#category_id').val();
+
+      let url = '/admin/categories';
+      let method = 'POST';
+
+      if (categoryId) { // editing
+        url = '/admin/categories/' + categoryId;
+        method = 'PUT';
+      }
+      $('#form-loader').show();
+
+      $.ajax({
+        url: url,
+        method: method,
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+          $('#form-loader').hide();
+          window.location.href = '/admin/categories'; // redirect after save
+        },
+        error: function(res) {
+          $('#form-loader').hide();
+          if (res.status == 400 || res.status == 422) {
+            if (res.responseJSON && res.responseJSON.errors) {
+              var error = res.responseJSON.errors;
+              $.each(error, function(key, value) {
+                $("#" + key + "-submit_errors").text(value);
+              });
+            }
+          }
+          if (res.status == 500) {
+            showErrorToast(res.responseJSON.error);
+          }
+          if (res.status == 404) {
+            showErrorToast('Something went wrong');
+          }
+        }
+      });
+    });
+  });
+</script>

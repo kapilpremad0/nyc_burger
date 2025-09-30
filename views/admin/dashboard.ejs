@@ -1,0 +1,184 @@
+<div class="app-content content">
+  <div class="content-overlay"></div>
+  <div class="header-navbar-shadow"></div>
+  <div class="content-wrapper container-xxl p-0">
+    <div class="content-header row"></div>
+    <div class="content-body">
+
+      <!-- Statistics Cards -->
+      <div class="row">
+        <div class="col-xl-3 col-sm-6 col-12 mb-2">
+          <div class="card card-statistics">
+            <div class="card-body d-flex align-items-center">
+              <i data-feather="dollar-sign" class="me-2"></i>
+              <div>
+                <h4 id="todaySales">0</h4>
+                <span>Today's Sales</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-sm-6 col-12 mb-2">
+          <div class="card card-statistics">
+            <div class="card-body d-flex align-items-center">
+              <i data-feather="shopping-cart" class="me-2"></i>
+              <div>
+                <h4 id="todayOrders">0</h4>
+                <span>Today's Orders</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-sm-6 col-12 mb-2">
+          <div class="card card-statistics">
+            <div class="card-body d-flex align-items-center">
+              <i data-feather="trending-up" class="me-2"></i>
+              <div>
+                <h4 id="monthSales">0</h4>
+                <span>This Month Sales</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-sm-6 col-12 mb-2">
+          <div class="card card-statistics">
+            <div class="card-body d-flex align-items-center">
+              <i data-feather="bar-chart-2" class="me-2"></i>
+              <div>
+                <h4 id="monthOrders">0</h4>
+                <span>This Month Orders</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Latest Pending Orders Table -->
+      <div class="row mt-1">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h4 class="card-title">Latest 10 Pending Orders</h4>
+            </div>
+            <div class="card-body table-responsive">
+              <div class="card-body table-responsive">
+                <table class="table table-bordered" id="pendingOrdersTable">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Order ID</th>
+                      <th>Customer Name</th>
+                      <th>Mobile</th>
+                      <th>Order Type</th>
+                      <th>Payment</th>
+                      <th>Total Amount</th>
+                      <th>Status</th>
+                      <th>Order Date</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+
+              <script>
+                $(document).ready(function() {
+                  $('#pendingOrdersTable').DataTable({
+                    processing: true,
+                    serverSide: false, // we already fetch 10 latest, no need for serverSide paging
+                    ajax: {
+                      url: '/admin/latest-pending-orders', // create this route
+                      type: 'GET',
+                      dataSrc: ''
+                    },
+                    columns: [{
+                        data: null,
+                        render: function(data, type, row, meta) {
+                          return meta.row + 1;
+                        },
+                        searchable: false
+                      },
+                      {
+                        data: 'orderId',
+                        render: function(data, type, row) {
+                          return `<a href="/admin/orders/${row._id}" class="text-primary">${data}</a>`;
+                        }
+                      },
+                      {
+                        data: 'customerName',
+                        defaultContent: '-'
+                      },
+                      {
+                        data: 'customerMobile',
+                        defaultContent: '-'
+                      },
+                      {
+                        data: 'orderType',
+                        render: data => data === 'dinein' ?
+                          '<span class="badge bg-primary">Dine-in</span>' :
+                          '<span class="badge bg-warning">Takeaway</span>'
+                      },
+                      {
+                        data: 'paymentMethod',
+                        render: data => data === 'cash' ?
+                          '<span class="badge bg-secondary">Cash</span>' :
+                          '<span class="badge bg-success">Online</span>'
+                      },
+                      {
+                        data: 'totalAmount'
+                      },
+                      {
+                        data: 'status',
+                        render: data => {
+                          if (data === 'pending') return '<span class="badge bg-info">Pending</span>';
+                          if (data === 'baked') return '<span class="badge bg-warning">Baked</span>';
+                          if (data === 'delivered') return '<span class="badge bg-success">Delivered</span>';
+                          return '<span class="badge bg-secondary">Unknown</span>';
+                        }
+                      },
+                      {
+                        data: 'createdAt',
+                        render: d => new Date(d).toLocaleString()
+                      }
+                    ],
+                    order: [
+                      [8, 'desc']
+                    ] // order by createdAt desc
+                  });
+                });
+              </script>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  async function loadDashboard() {
+    try {
+      const res = await fetch('/admin/stats');
+      const data = await res.json();
+
+      // Update cards
+      document.getElementById('todaySales').innerText = data.todaySales;
+      document.getElementById('todayOrders').innerText = data.todayOrders;
+      document.getElementById('monthSales').innerText = data.monthSales;
+      document.getElementById('monthOrders').innerText = data.monthOrders;
+
+
+
+      feather.replace();
+    } catch (err) {
+      console.error('Error loading dashboard:', err);
+    }
+  }
+
+  // Load when page loads
+  loadDashboard();
+</script>

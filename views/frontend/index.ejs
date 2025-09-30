@@ -1,0 +1,947 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Burger Farm — Menu with Cart</title>
+
+
+  <style>
+    :root {
+      --bg: #f6f6f8;
+      --card: #fff;
+      --accent: #ff6b35;
+      --muted: #6b7280;
+      --max-width: 1400px;
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, sans-serif;
+      background: var(--bg);
+      color: #111
+    }
+
+    .wrap {
+      max-width: var(--max-width);
+      margin: 24px auto;
+      padding: 16px;
+      display: flex;
+      gap: 20px
+    }
+
+    /* left sidebar */
+    .sidebar {
+      width: 260px;
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px;
+      box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
+      border: 1px solid rgba(16, 24, 40, 0.04);
+      height: 78vh;
+      position: sticky;
+      top: 20px;
+      overflow: auto;
+      transition: transform 0.3s ease;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 6px
+    }
+
+    .brand img {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px
+    }
+
+    .brand h2 {
+      font-size: 16px;
+      margin: 0
+    }
+
+    .search {
+      display: flex;
+      margin: 8px 6px
+    }
+
+    .search input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #e6e6ee
+    }
+
+    .categories {
+      margin-top: 8px
+    }
+
+    .category {
+      padding: 12px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      margin-bottom: 6px
+    }
+
+    .category img {
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      object-fit: cover
+    }
+
+    .category h4 {
+      margin: 0;
+      font-size: 14px
+    }
+
+    .category p {
+      margin: 0;
+      font-size: 12px;
+      color: var(--muted)
+    }
+
+    .category.active {
+      background: linear-gradient(90deg, rgba(255, 107, 53, 0.08), rgba(255, 107, 53, 0.02));
+      border: 1px solid rgba(255, 107, 53, 0.12)
+    }
+
+    /* main area */
+    .main {
+      flex: 1
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px
+    }
+
+    .toolbar h1 {
+      margin: 0;
+      font-size: 20px
+    }
+
+    .products {
+      padding: 12px
+    }
+
+    .category-section {
+      padding: 12px 6px;
+      margin-bottom: 18px;
+      background: #fff;
+      border-radius: 10px
+    }
+
+    .category-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px
+    }
+
+    .category-title h3 {
+      margin: 0
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: 0 6px 14px rgba(10, 10, 20, 0.04);
+      border: 1px solid rgba(16, 24, 40, 0.04);
+      display: flex;
+      flex-direction: column
+    }
+
+    .card img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 8px
+    }
+
+    .card .info {
+      padding: 8px 0;
+      flex: 1
+    }
+
+    .card h4 {
+      margin: 0 0 6px 0;
+      font-size: 15px
+    }
+
+    .price {
+      font-weight: 700;
+      color: var(--accent)
+    }
+
+    .card .actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px
+    }
+
+    .btn {
+      background: var(--accent);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer
+    }
+
+    .btn.secondary {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid rgba(255, 107, 53, 0.3)
+    }
+
+    /* Cart container */
+    .cart {
+      width: 300px;
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
+      border: 1px solid rgba(16, 24, 40, 0.04);
+      height: 78vh;
+      position: sticky;
+      top: 20px;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s ease;
+      font-family: Inter, sans-serif;
+    }
+
+    /* Cart title */
+    .cart h2 {
+      font-size: 18px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    /* Cart items container */
+    .cart-items {
+      flex: 1;
+      overflow-y: auto;
+      margin-bottom: 12px;
+    }
+
+    /* Single cart item */
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .cart-item-name {
+      font-size: 14px;
+      flex: 1;
+    }
+
+    /* Quantity buttons */
+    .cart-item-qty {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .cart-item-qty button {
+      padding: 4px 8px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      cursor: pointer;
+      background: #fafafa;
+      font-weight: bold;
+      transition: 0.2s all;
+    }
+
+    .cart-item-qty button:hover {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    /* Total */
+    .cart-total {
+      font-weight: 700;
+      font-size: 16px;
+      text-align: right;
+      margin-bottom: 12px;
+    }
+
+    /* Options wrapper */
+    .cart-options {
+      margin-bottom: 12px;
+    }
+
+    .cart-options label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    /* Input and select styling */
+    .cart-input,
+    .cart-select {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      outline: none;
+      font-size: 0.95rem;
+      transition: 0.2s border-color;
+    }
+
+    .cart-input:focus,
+    .cart-select:focus {
+      border-color: var(--accent);
+    }
+
+    /* Coupon input group */
+    .cart-input-group {
+      display: flex;
+      gap: 6px;
+    }
+
+    .cart-input-group input {
+      flex: 1;
+    }
+
+    .cart-input-group button {
+      flex-shrink: 0;
+    }
+
+    /* Buttons */
+    .btn {
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: none;
+      font-weight: bold;
+      transition: 0.2s all;
+    }
+
+    .btn.primary {
+      background-color: var(--accent);
+      color: #fff;
+    }
+
+    .btn.primary:hover {
+      background-color: #e55a25;
+    }
+
+    .btn.secondary {
+      background-color: #f0f0f0;
+      color: var(--accent);
+      border: 1px solid rgba(255, 107, 53, 0.3);
+    }
+
+    .btn.secondary:hover {
+      background-color: #ffe8df;
+    }
+
+
+    /* responsive */
+    @media(max-width: 900px) {
+      .wrap {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        transform: translateX(-100%);
+        z-index: 1000;
+        width: 80%;
+        max-width: 280px;
+      }
+
+      .sidebar.active {
+        transform: translateX(0);
+      }
+
+      .cart {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        transform: translateX(100%);
+        z-index: 1000;
+        width: 80%;
+        max-width: 320px;
+      }
+
+      .cart.active {
+        transform: translateX(0);
+      }
+
+      .toolbar {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+      }
+
+      .grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      }
+    }
+
+    /* Two-column layout for cart inputs */
+    .cart-options.two-columns {
+      display: flex;
+      gap: 10px;
+    }
+
+    .cart-options.two-columns>div {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Optional: Make mobile responsive */
+    @media (max-width: 600px) {
+      .cart-options.two-columns {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <script>
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("active");
+    }
+
+    function toggleCart() {
+      document.getElementById("cartPanel").classList.toggle("active");
+    }
+  </script>
+  <div class="wrap">
+    <!-- Left Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <img src="/logo.jpeg">
+        <div id="openBranchModalBtn">
+          <h2><%= appName %></h2>
+          <div style="font-size:12px;color:var(--muted)"><%= appUser.branch.name %>, <%= appUser.branch.city.name %></div>
+        </div>
+      </div>
+      <div class="search"><input id="catSearch" placeholder="Search categories..." /></div>
+      <div class="categories" id="categoriesList"></div>
+    </aside>
+
+    <!-- Main Products -->
+    <main class="main">
+      <div class="toolbar">
+        <h1>Menu</h1>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <button class="btn secondary" onclick="toggleSidebar()">☰ Categories</button>
+          <button class="btn" id="cartBtn" onclick="toggleCart()">View Cart (0)</button>
+          <a href="/admin/orders" class="btn primary">Orders</a>
+        </div>
+      </div>
+      <div class="products" id="productsArea"></div>
+    </main>
+
+    <!-- Right Cart -->
+    <!-- Right Cart -->
+    <!-- Right Cart -->
+    <aside class="cart" id="cartPanel">
+      <h2>Your Cart</h2>
+      <div class="cart-items" id="cartItems"></div>
+      <div class="cart-total" id="cartTotal">Total: ₹0</div>
+
+      <!-- Coupon -->
+      <div class="cart-options">
+        <label for="couponInput">Coupon Code:</label>
+        <div class="cart-input-group">
+          <input type="text" id="couponInput" placeholder="Enter coupon e.g. FARM10" class="cart-input">
+          <button class="btn secondary" onclick="applyCoupon()">Apply</button>
+        </div>
+      </div>
+
+      <!-- Two-column inputs -->
+      <div class="cart-options two-columns">
+        <div>
+          <label for="orderType">Order Type:</label>
+          <select id="orderType" class="cart-select">
+            <option value="dinein">Dine In</option>
+            <option value="takeaway">Take Away</option>
+          </select>
+        </div>
+        <div>
+          <label for="paymentMethod">Payment Method:</label>
+          <select id="paymentMethod" class="cart-select">
+            <option value="cash">Cash</option>
+            <option value="online">Online</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="cart-options two-columns">
+        <div>
+          <label for="customerName">Customer Name:</label>
+          <input type="text" id="customerName" placeholder="Customer Name" name="customer_name" class="cart-input">
+        </div>
+        <div>
+          <label for="customerMobile">Customer Mobile:</label>
+          <input type="text" id="customerMobile" placeholder="Customer Mobile" name="customer_mobile" class="cart-input">
+        </div>
+      </div>
+
+      <div class="checkout">
+        <button class="btn primary" onclick="checkout()">Checkout</button>
+      </div>
+    </aside>
+
+
+  </div>
+
+
+  <script>
+    let MENU = [];
+    let cart = {};
+    let appliedCoupon = null; // store applied coupon info
+
+
+    async function fetchMenu() {
+      try {
+        const res = await fetch("/menu"); // 👈 Your backend route
+        MENU = await res.json();
+        renderCategories();
+        renderProducts();
+        renderCart();
+      } catch (err) {
+        console.error("Error fetching menu:", err);
+      }
+    }
+
+    fetchMenu();
+
+
+
+
+    // DOM refs
+    const categoriesList = document.getElementById('categoriesList');
+    const productsArea = document.getElementById('productsArea');
+    const catSearch = document.getElementById('catSearch');
+    const cartItems = document.getElementById('cartItems');
+    const cartTotal = document.getElementById('cartTotal');
+    const cartBtn = document.getElementById('cartBtn');
+
+
+    // render categories
+    function renderCategories(filter = '') {
+      categoriesList.innerHTML = '';
+      MENU.filter(c => c.title.toLowerCase().includes(filter.toLowerCase()))
+        .forEach((cat, idx) => {
+          const el = document.createElement('div');
+          el.className = 'category' + (idx === 0 ? ' active' : '');
+          el.dataset.id = cat.id;
+          el.innerHTML = `<img src="/uploads/${cat.img}"/><div><h4>${cat.title}</h4><p>${cat.subtitle}</p></div>`;
+          el.onclick = () => {
+            scrollToCategory(cat.id);
+            setActiveCategory(cat.id);
+          }
+          categoriesList.appendChild(el);
+        });
+    }
+
+    // render products
+    function renderProducts() {
+      productsArea.innerHTML = '';
+      MENU.forEach(cat => {
+        const sec = document.createElement('section');
+        sec.className = 'category-section';
+        sec.id = 'section-' + cat.id;
+        sec.innerHTML = `<div class="category-title"><h3>${cat.title}</h3></div>`;
+        const grid = document.createElement('div');
+        grid.className = 'grid';
+        cat.items.forEach(item => {
+          const card = document.createElement('article');
+          card.className = 'card';
+          card.innerHTML = `
+        <img src="/uploads/${item.img}">
+        <div class="info"><h4>${item.name}</h4><div style="font-size:13px;color:var(--muted)">${item.desc}</div></div>
+        <div class="actions"><div class="price">₹${item.price}</div>
+        <button class="btn" onclick='addToCart("${item.id}")'>Add</button></div>`;
+          grid.appendChild(card);
+        });
+        sec.appendChild(grid);
+        productsArea.appendChild(sec);
+      });
+    }
+
+    // cart functions
+    function addToCart(id) {
+      let item;
+      MENU.forEach(cat => {
+        cat.items.forEach(i => {
+          if (i.id === id) item = i
+        })
+      });
+      if (!item) return;
+      if (cart[id]) cart[id].qty++;
+      else cart[id] = {
+        ...item,
+        qty: 1
+      };
+      renderCart();
+    }
+
+    function changeQty(id, delta) {
+      if (cart[id]) {
+        cart[id].qty += delta;
+        if (cart[id].qty <= 0) delete cart[id];
+      }
+      renderCart();
+    }
+
+    function renderCart() {
+      cartItems.innerHTML = '';
+      let total = 0,
+        count = 0;
+
+      Object.values(cart).forEach(it => {
+        total += it.price * it.qty;
+        count += it.qty;
+        const row = document.createElement('div');
+        row.className = 'cart-item';
+        row.innerHTML = `
+      <div class="cart-item-name">${it.name}</div>
+      <div class="cart-item-qty">
+        <button onclick='changeQty("${it.id}",-1)'>-</button>
+        <span>${it.qty}</span>
+        <button onclick='changeQty("${it.id}",1)'>+</button>
+      </div>
+      <div>₹${it.price * it.qty}</div>`;
+        cartItems.appendChild(row);
+      });
+
+      let finalTotal = total;
+
+      if (appliedCoupon) {
+        finalTotal = total - appliedCoupon.discount;
+        const couponRow = document.createElement('div');
+        couponRow.style.fontSize = "14px";
+        couponRow.style.color = "green";
+        couponRow.style.marginTop = "6px";
+        couponRow.innerHTML = `
+      Coupon (${appliedCoupon.code}) applied: -₹${appliedCoupon.discount} 
+      <button style="margin-left:10px;padding:2px 6px;font-size:12px;" onclick="removeCoupon()">Remove</button>
+    `;
+        cartItems.appendChild(couponRow);
+      }
+
+      cartTotal.textContent = 'Total: ₹' + finalTotal;
+      cartBtn.textContent = 'View Cart (' + count + ')';
+    }
+
+
+
+    // helpers
+    function setActiveCategory(id) {
+      document.querySelectorAll('.category').forEach(el => el.classList.toggle('active', el.dataset.id === id));
+    }
+
+    function scrollToCategory(id) {
+      document.getElementById('section-' + id)?.scrollIntoView({
+        behavior: 'smooth'
+      });
+    }
+
+    catSearch.oninput = e => renderCategories(e.target.value);
+
+    // init
+    renderCategories();
+    renderProducts();
+    renderCart();
+  </script>
+
+
+  <script>
+    function removeCoupon() {
+      appliedCoupon = null;
+      couponInput.value = "";
+      renderCart();
+      // alert("Coupon removed");
+    }
+
+
+
+    const couponInput = document.getElementById("couponInput");
+
+    async function applyCoupon() {
+      const code = couponInput.value.trim();
+      if (!code) return alert("Please enter a coupon code");
+
+      const cartTotalValue = Object.values(cart).reduce((sum, item) => sum + item.price * item.qty, 0);
+
+      try {
+        const res = await fetch("/apply-coupon", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            code,
+            cartTotal: cartTotalValue
+          })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          appliedCoupon = {
+            code: code,
+            discount: data.discount
+          };
+          renderCart(); // re-render cart to show coupon
+          // alert(`Coupon applied! Discount: ₹${data.discount}`);
+        } else {
+          alert(data.message || "Invalid coupon");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Something went wrong while applying coupon");
+      }
+    }
+  </script>
+
+
+  <script>
+    async function checkout() {
+      if (Object.keys(cart).length === 0) return alert("Your cart is empty");
+
+      const customerName = document.querySelector('[name="customer_name"]').value.trim();
+      const customerMobile = document.querySelector('[name="customer_mobile"]').value.trim();
+      const orderType = document.getElementById("orderType").value;
+      const paymentMethod = document.getElementById("paymentMethod").value;
+
+      if (!customerName || !customerMobile) return alert("Please enter customer details");
+
+      // Prepare order data
+      const orderData = {
+        cart: Object.values(cart),
+        customerName,
+        customerMobile,
+        orderType,
+        paymentMethod,
+        coupon: appliedCoupon ? appliedCoupon.code : null
+      };
+
+      try {
+        const res = await fetch("/checkout", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(orderData)
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          alert("Order placed successfully! Order ID: " + data.orderId);
+          cart = {};
+          appliedCoupon = null;
+          couponInput.value = "";
+          renderCart();
+        } else {
+          alert("Checkout failed: " + data.message);
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Something went wrong during checkout");
+      }
+    }
+  </script>
+
+  <!-- pos/index.ejs -->
+  <!-- Button to open modal -->
+  <!-- <button id="" class="btn btn-primary">Select Branch</button> -->
+
+  <!-- Branch Selection Modal -->
+  <div id="branchModal" class="modal">
+    <div class="modal-content">
+      <h2>Select Branch</h2>
+      <form action="/select-branch" method="POST">
+        <select name="branch" required>
+          <option value="">-- Select Branch --</option>
+          <% branches.forEach(branch => { %>
+          <option value="<%= branch._id %>"><%= branch.name %></option>
+          <% }) %>
+        </select>
+        <div class="modal-actions">
+          <button type="submit">Save</button>
+          <button type="button" id="closeBranchModalBtn" class="btn btn-secondary">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <style>
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      width: 300px;
+      max-width: 90%;
+      text-align: center;
+    }
+
+    .modal-actions {
+      margin-top: 15px;
+      text-align: right;
+    }
+
+    .modal-actions button {
+      margin-left: 10px;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: #007bff;
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+      color: #fff;
+    }
+  </style>
+
+  <% if (appUser.user_type == 'admin') { %>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const modal = document.getElementById("branchModal");
+      const openBtn = document.getElementById("openBranchModalBtn");
+      const closeBtn = document.getElementById("closeBranchModalBtn");
+
+      // Auto open modal if no branch is selected
+      <% if (!appUser.branch) { %>
+      modal.style.display = "flex";
+      <% } %>
+
+
+
+      // Open modal on button click
+      openBtn.addEventListener("click", () => {
+        modal.style.display = "flex";
+      });
+
+      // Close modal
+      closeBtn.addEventListener("click", () => {
+        modal.style.display = "none";
+      });
+
+
+
+      // Close modal if clicking outside
+      window.addEventListener("click", (e) => {
+        if (e.target === modal) {
+          modal.style.display = "none";
+        }
+      });
+    });
+  </script>
+
+  <% } %>
+
+
+  <!-- Modal Styles -->
+  <style>
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      width: 320px;
+      max-width: 95%;
+      text-align: center;
+    }
+
+    .modal-content h2 {
+      margin-bottom: 15px;
+      font-size: 20px;
+    }
+
+    .modal-content select {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 15px;
+      font-size: 16px;
+    }
+
+    .modal-actions {
+      text-align: right;
+    }
+
+    .modal-actions button {
+      background: #007bff;
+      border: none;
+      color: #fff;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .modal-actions button:hover {
+      background: #0056b3;
+    }
+  </style>
+
+
+</body>
+
+</html>

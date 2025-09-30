@@ -1,0 +1,87 @@
+<div class="app-content content">
+  <div class="content-overlay"></div>
+  <div class="header-navbar-shadow"></div>
+  <div class="content-wrapper container-xxl p-0">
+    <div class="content-body">
+      <div class="col-xl-12 col-lg-12">
+        <div class="card">
+          <div class="card-header">
+            <h4 class="card-title">Order Details</h4>
+          </div>
+          <div class="card-body">
+            
+            <!-- Order Info -->
+            <table class="table table-striped mb-4">
+              <tr>
+                <th>Order ID</th>
+                <td><%= order.orderId %></td>
+              </tr>
+              <tr>
+                <th>Customer Name</th>
+                <td><%= order.customerName %></td>
+              </tr>
+              <tr>
+                <th>Mobile</th>
+                <td><%= order.customerMobile %></td>
+              </tr>
+              <tr>
+                <th>Order Type</th>
+                <td><%= order.orderType %></td>
+              </tr>
+              <tr>
+                <th>Payment Method</th>
+                <td><%= order.paymentMethod %></td>
+              </tr>
+              <tr>
+                <th>Status</th>
+                <td><%= order.status %></td>
+              </tr>
+              <tr>
+                <th>Coupon</th>
+                <td><%= order.coupon %></td>
+              </tr> 
+              <tr>
+                <th>Total Amount</th>
+                <td><%= order.totalAmount %></td>
+              </tr>
+              <tr>
+                <th>Date</th>
+                <td><%= order.createdAt.toLocaleString() %></td>
+              </tr>
+            </table>
+
+            <!-- Cart Items -->
+            <h5>Cart Items</h5>
+            <% if(order.cart && order.cart.length > 0) { %>
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Product Name</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% order.cart.forEach((item, i) => { %>
+                  <tr>
+                    <td><%= i+1 %></td>
+                    <td><%= item.name %></td>
+                    <td><%= item.price.toFixed(2) %></td>
+                    <td><%= item.qty %></td>
+                    <td><%= (item.price * item.qty).toFixed(2) %></td>
+                  </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            <% } else { %>
+              <p>No items in the cart.</p>
+            <% } %>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

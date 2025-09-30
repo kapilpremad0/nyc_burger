@@ -1,0 +1,142 @@
+<div class="app-content content">
+  <div class="content-overlay"></div>
+  <div class="header-navbar-shadow"></div>
+  <div class="content-wrapper container-xxl p-0">
+    <div class="content-header row">
+      <div class="content-header-right text-md-end col-md-3 col-12 d-md-block d-none"></div>
+    </div>
+    <div class="content-body">
+      <!-- Bordered table start -->
+      <div class="row" id="table-bordered">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h4 class="card-title">Categories</h4>
+              <a href="<%= '/admin/categories/create' %>" class="btn btn-primary">Create Category</a>
+            </div>
+
+            <div class="card-body">
+              <div class="table-responsive card card-company-table">
+                <table class="table" id="categoriesTable">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Image</th>
+                      <th>Name</th>
+                      <th>Status</th>
+                      <!-- <th>Description</th> -->
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Delete Category</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete <strong id="deleteCategoryName"></strong>?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" id="confirmDeleteCategory" class="btn btn-danger">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  $(document).ready(function () {
+    // Initialize DataTable
+    var table = $('#categoriesTable').DataTable({
+      columnDefs: [{ orderable: false, targets: -1 }],
+      processing: true,
+      serverSide: true,
+      ajax: {
+        url: '/admin/categories/data',
+        type: 'POST',
+        contentType: 'application/json',
+        data: function (d) {
+          return JSON.stringify(d);
+        }
+      },
+      columns: [
+        {
+          data: null,
+          render: function (data, type, row, meta) {
+            return meta.settings._iDisplayStart + meta.row + 1;
+          },
+          searchable: false
+        },
+        {
+          data: 'image',
+          render: function (data) {
+            return data
+              ? `<img src="${data}" alt="Category" width="40" class="rounded" />`
+              : '-';
+          }
+        },
+        { data: 'name' },
+        {
+          data: 'status',
+          render: function (data) {
+            return data
+              ? '<span class="badge bg-success">Active</span>'
+              : '<span class="badge bg-danger">Inactive</span>';
+          }
+        },
+        // {
+        //   data: 'description',
+        //   render: function (data) {
+        //     return data ? data.substring(0, 40) + '...' : '';
+        //   }
+        // },
+        { data: 'action' }
+      ],
+      drawCallback: function (settings) {
+        feather.replace(); // replace icons
+      }
+    });
+
+    // Delete Category
+    let deleteCategoryId = null;
+
+    $(document).on('click', '.delete-category', function () {
+      deleteCategoryId = $(this).data('id');
+      let categoryName = $(this).data('name');
+      $('#deleteCategoryName').text(categoryName);
+      $('#deleteCategoryModal').modal('show');
+    });
+
+    $('#confirmDeleteCategory').on('click', function () {
+      if (!deleteCategoryId) return;
+
+      $.ajax({
+        url: '/admin/categories/' + deleteCategoryId,
+        type: 'DELETE',
+        success: function (response) {
+          $('#deleteCategoryModal').modal('hide');
+          table.ajax.reload();
+          showSuccessToast('Category deleted successfully!');
+        },
+        error: function (err) {
+          $('#deleteCategoryModal').modal('hide');
+          showErrorToast('Failed to delete Category!');
+        }
+      });
+    });
+  });
+</script>

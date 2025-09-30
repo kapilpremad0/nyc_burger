@@ -1,0 +1,128 @@
+<div class="app-content content">
+  <div class="content-overlay"></div>
+  <div class="header-navbar-shadow"></div>
+  <div class="content-wrapper container-xxl p-0">
+    <div class="content-header row"></div>
+    <div class="content-body">
+
+      <div class="col-xl-12 col-lg-12">
+        <form id="submitForm" method="post" enctype="multipart/form-data">
+          <!-- hidden field to detect edit mode -->
+          <input type="hidden" id="branch_id" name="branch_id" value="<%= branch ? branch._id : '' %>">
+
+          <div class="card">
+            <div class="card-header">
+              <h3><%= branch ? 'Edit Branch' : 'Create Branch' %></h3>
+            </div>
+            <div class="card-body">
+              <div class="row">
+
+                <!-- Branch Name -->
+                <div class="mb-1 col-md-6">
+                  <label for="name">Branch Name</label>
+                  <input type="text" class="form-control" id="name" name="name" value="<%= branch ? branch.name : '' %>" placeholder="Enter branch name" required />
+                  <div id="name-submit_errors" class="validation-error"></div>
+                </div>
+
+                <!-- City Dropdown -->
+                <div class="mb-1 col-md-6">
+                  <label for="city">City</label>
+                  <select class="form-select" id="city" name="city" required>
+                    <option value="">Select City</option>
+                    <% cities.forEach(function(city) { %>
+                      <option value="<%= city._id %>" <%= branch && branch.city && branch.city.toString() === city._id.toString() ? 'selected' : '' %>><%= city.name %></option>
+                    <% }); %>
+                  </select>
+                  <div id="city-submit_errors" class="validation-error"></div>
+                </div>
+
+                <!-- Branch Address -->
+                <div class="mb-1 col-md-6">
+                  <label for="address">Address</label>
+                  <input type="text" class="form-control" id="address" name="address" value="<%= branch ? branch.address : '' %>" placeholder="Enter branch address" />
+                  <div id="address-submit_errors" class="validation-error"></div>
+                </div>
+
+                <!-- Branch Phone -->
+                <div class="mb-1 col-md-6">
+                  <label for="phone">Phone</label>
+                  <input type="text" class="form-control" id="phone" name="phone" value="<%= branch ? branch.phone : '' %>" placeholder="Enter phone number" />
+                  <div id="phone-submit_errors" class="validation-error"></div>
+                </div>
+
+                <!-- Branch Status -->
+                <div class="mb-1 col-md-6">
+                  <label for="status">Status</label>
+                  <select class="form-select" id="status" name="status">
+                    <option value="1" <%= branch && branch.status ? 'selected' : '' %>>Active</option>
+                    <option value="0" <%= branch && !branch.status ? 'selected' : '' %>>Inactive</option>
+                  </select>
+                  <div id="status-submit_errors" class="validation-error"></div>
+                </div>
+
+                <!-- Submit -->
+                <div class="mb-2">
+                  <button type="submit" class="btn btn-primary mt-3">
+                    <%= branch ? 'Update Branch' : 'Save Branch' %>
+                  </button>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  $(document).ready(function() {
+    $('#submitForm').on('submit', function(e) {
+      e.preventDefault();
+      $('.validation-error').text('');
+
+      const formData = new FormData(this);
+      const branchId = $('#branch_id').val();
+
+      let url = '/admin/branches';
+      let method = 'POST';
+
+      if (branchId) { // editing
+        url = '/admin/branches/' + branchId;
+        method = 'PUT';
+      }
+      $('#form-loader').show();
+
+      $.ajax({
+        url: url,
+        method: method,
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+          $('#form-loader').hide();
+          window.location.href = '/admin/branches'; // redirect after save
+        },
+        error: function(res) {
+          $('#form-loader').hide();
+          if (res.status == 400 || res.status == 422) {
+            if (res.responseJSON && res.responseJSON.errors) {
+              var error = res.responseJSON.errors;
+              $.each(error, function(key, value) {
+                $("#" + key + "-submit_errors").text(value);
+              });
+            }
+          }
+          if (res.status == 500) {
+            showErrorToast(res.responseJSON.error);
+          }
+          if (res.status == 404) {
+            showErrorToast('Something went wrong');
+          }
+        }
+      });
+    });
+  });
+</script>
