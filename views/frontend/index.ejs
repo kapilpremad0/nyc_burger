@@ -507,14 +507,48 @@
 
       <div class="cart-options two-columns">
         <div>
+          <label for="customerMobile">Customer Mobile:</label>
+          <input type="text" id="customerMobile" placeholder="Customer Mobile" name="customer_mobile" class="cart-input" maxlength="10">
+        </div>
+        <div>
           <label for="customerName">Customer Name:</label>
           <input type="text" id="customerName" placeholder="Customer Name" name="customer_name" class="cart-input">
         </div>
-        <div>
-          <label for="customerMobile">Customer Mobile:</label>
-          <input type="text" id="customerMobile" placeholder="Customer Mobile" name="customer_mobile" class="cart-input">
-        </div>
       </div>
+
+      <script>
+        const mobileInput = document.getElementById('customerMobile');
+        const nameInput = document.getElementById('customerName');
+
+        mobileInput.addEventListener('input', () => {
+          // Remove non-digit characters
+          mobileInput.value = mobileInput.value.replace(/\D/g, '');
+
+          // Limit to 10 digits
+          if (mobileInput.value.length > 10) {
+            mobileInput.value = mobileInput.value.slice(0, 10);
+          }
+
+          // If 10 digits, fetch customer name
+          if (mobileInput.value.length === 10) {
+            const mobile = mobileInput.value;
+
+            fetch(`/customers/search?mobile=${mobile}`)
+              .then(res => res.json())
+              .then(data => {
+                if (data && data.name) {
+                  nameInput.value = data.name;
+                } else {
+                  nameInput.value = '';
+                }
+              })
+              .catch(err => console.error(err));
+          } else {
+            nameInput.value = '';
+          }
+        });
+      </script>
+
 
       <div class="checkout">
         <button class="btn primary" onclick="checkout()">Checkout</button>
@@ -795,7 +829,7 @@
         <select name="branch" required>
           <option value="">-- Select Branch --</option>
           <% branches.forEach(branch => { %>
-          <option value="<%= branch._id %>" <%= appUser.branch && appUser.branch.name == branch.name ? 'selected' : '' %> ><%= branch.name %></option>
+          <option value="<%= branch._id %>" <%= appUser.branch && appUser.branch.name == branch.name ? 'selected' : '' %>><%= branch.name %></option>
           <% }) %>
         </select>
         <div class="modal-actions">

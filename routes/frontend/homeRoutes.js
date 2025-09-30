@@ -10,5 +10,6 @@ router.get('/menu', adminAuth, homeController.menu);
 router.post('/apply-coupon', adminAuth, homeController.applyCoupon);
 router.post('/checkout', adminAuth, homeController.checkout);
 router.get('/invoice/:orderId',homeController.invoice);
+router.get('/customers/search',homeController.searchCustomer);
 
 module.exports = router;

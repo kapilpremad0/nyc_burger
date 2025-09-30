@@ -185,9 +185,20 @@ exports.invoice = async (req, res) => {
 
     if (!order) return res.status(404).send("Order not found");
 
-    res.render('invoice', { order, layout: false ,req  });
+    res.render('invoice', { order, layout: false, req });
   } catch (err) {
     console.error(err);
     res.status(500).send("Server error");
+  }
+}
+
+
+exports.searchCustomer = async (req, res) => {
+  const { mobile } = req.query;
+  const order = await Order.findOne({ customerMobile: mobile });
+  if (order) {
+    res.json({ name: order.customerName });
+  } else {
+    res.json({});
   }
 }
