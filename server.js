@@ -23,6 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 const path = require('path');
 const User = require('./models/User.js');
+const Branch = require('./models/Branch.js');
 
 
 
@@ -56,8 +57,10 @@ app.set('layout', 'admin/layouts/app'); // default layout (without .ejs extensio
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(async (req, res, next) => {
+  const branches = await Branch.find({ status: true }).populate('city');
   if (req.session.admin && req.session.admin.id) {
     // fetch full user from DB
+
     const user = await User.findById(req.session.admin.id)
       .populate({
         path: "branch",
@@ -68,12 +71,16 @@ app.use(async (req, res, next) => {
       })
       .lean();
     res.locals.appUser = user || null;
+
+
   } else {
     res.locals.appUser = null;
   }
 
   res.locals.currentRoute = req.path; // stores the current URL path
   res.locals.appName = process.env.APP_NAME || "MyApp"; // app name
+  res.locals.appBranch = branches; // app name
+
   next();
 });
 

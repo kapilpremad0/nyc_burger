@@ -1,8 +1,8 @@
 
 
-exports.home =async (req, res) => {
+exports.home = async (req, res) => {
   const branches = await Branch.find({ status: true });
-  res.render('frontend/index', { title: "Dashboard", layout: false ,branches });
+  res.render('frontend/index', { title: "Dashboard", layout: false, branches });
 };
 
 const Category = require("../../models/Category");
@@ -13,13 +13,24 @@ const Order = require("../../models/Order");
 const { sendWhatsApp } = require('../../utils/whatsappUtils');
 const User = require("../../models/User");
 
-exports.selectBranch = async(req, res) => {
-  const { branch } = req.body;
+exports.selectBranch = async (req, res) => {
+  let { branch, type } = req.body;
   const userId = req.user._id;
 
-  await User.findByIdAndUpdate(userId, { branch });
-  req.user.branch = branch; // update session/local user too
+  if (!branch || branch === "") {
+    branch = null;
+  }
 
+
+  await User.findByIdAndUpdate(userId, { branch });
+
+  req.user.branch = branch; // update session/local user too
+  if (type === 'dashboard') {
+    return res.json({
+      success: true,
+      redirect: '/admin/'
+    });
+  }
   res.redirect("/"); // back to POS page
 }
 

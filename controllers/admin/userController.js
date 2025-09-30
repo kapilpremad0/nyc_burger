@@ -112,11 +112,11 @@ exports.getData = async (req, res) => {
         <i data-feather="more-vertical"></i>
       </button>
       <div class="dropdown-menu dropdown-menu-end">
-        <a class="dropdown-item" href="/admin/users/edit/${this._id}">
+        <a class="dropdown-item" href="/admin/users/edit/${item._id}">
           <i data-feather="edit-2" class="me-50"></i>
           <span>Edit</span>
         </a>
-        <a class="dropdown-item delete-user" href="#" data-id="${this._id}" data-name="${this.name}">
+        <a class="dropdown-item delete-user" href="#" data-id="${item._id}" data-name="${item.name}">
           <i data-feather="trash" class="me-50"></i>
           <span>Delete</span>
         </a>

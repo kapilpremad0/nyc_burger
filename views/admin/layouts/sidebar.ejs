@@ -80,14 +80,13 @@
       <% } %>
 
       <!-- POS Settings -->
-      <% if (appUser && appUser.user_type === 'admin') { %>
       <li class="nav-item <%= currentRoute.startsWith('/admin/settings') ? 'active' : '' %>">
         <a class="d-flex align-items-center" href="/">
           <i data-feather="terminal"></i> <!-- updated POS icon -->
           <span class="menu-title text-truncate" data-i18n="Setting">POS</span>
         </a>
       </li>
-      <% } %>
+      
 
       <!-- Masters -->
       <li class="nav-item">

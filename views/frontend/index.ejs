@@ -795,7 +795,7 @@
         <select name="branch" required>
           <option value="">-- Select Branch --</option>
           <% branches.forEach(branch => { %>
-          <option value="<%= branch._id %>"><%= branch.name %></option>
+          <option value="<%= branch._id %>" <%= appUser.branch && appUser.branch.name == branch.name ? 'selected' : '' %> ><%= branch.name %></option>
           <% }) %>
         </select>
         <div class="modal-actions">
