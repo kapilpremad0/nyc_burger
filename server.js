@@ -71,8 +71,6 @@ app.use(async (req, res, next) => {
       })
       .lean();
     res.locals.appUser = user || null;
-
-
   } else {
     res.locals.appUser = null;
   }

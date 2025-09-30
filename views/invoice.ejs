@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice - <%= order.orderId %></title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f7f7f7;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+      font-size: 14px;
+    }
+
+    .invoice-box {
+      max-width: 750px;
+      margin: auto;
+      background-color: #fff;
+      padding: 20px 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .company {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.4em;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+
+    .company img {
+      max-height: 50px;
+      border-radius: 6px;
+    }
+
+    .invoice-details {
+      text-align: right;
+      font-size: 13px;
+    }
+
+    h3 {
+      color: #2c3e50;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      font-size: 14px;
+    }
+
+    .customer-info {
+      margin-bottom: 15px;
+      padding: 10px;
+      background-color: #f1f1f1;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 15px;
+    }
+
+    table th,
+    table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      vertical-align: middle;
+      text-align: left;
+      font-size: 13px;
+    }
+
+    table th {
+      background-color: #2980b9;
+      color: white;
+      font-weight: normal;
+    }
+
+    table td img {
+      max-width: 50px;
+      max-height: 50px;
+      border-radius: 4px;
+    }
+
+    .totals {
+      text-align: right;
+      margin-top: 15px;
+      font-size: 13px;
+    }
+
+    .totals div {
+      margin-bottom: 4px;
+    }
+
+    .buttons {
+      margin-top: 15px;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      font-size: 13px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+      text-decoration: none;
+      color: #fff;
+      font-size: 13px;
+    }
+
+    .btn-print {
+      background-color: #27ae60;
+    }
+
+    .btn-whatsapp {
+      background-color: #25d366;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="invoice-box" id="invoice">
+    <div class="header">
+      <div class="company">
+        <img src="/logo.jpeg" alt="App Logo">
+        <%= appName %>
+      </div>
+      <div class="invoice-details">
+        <div><strong>Invoice #:</strong> <%= order.orderId %></div>
+        <div><strong>Date:</strong> <%= new Date(order.createdAt).toLocaleDateString() %></div>
+      </div>
+    </div>
+
+    <div class="customer-info">
+      <h3>Customer Info</h3>
+      <p>
+        <strong>Name:</strong> <%= order.customerName || 'N/A' %><br>
+        <strong>Mobile:</strong> <%= order.customerMobile || 'N/A' %><br>
+        <strong>Branch:</strong> <%= order.branch ? order.branch.name : 'N/A' %>
+      </p>
+    </div>
+
+    <div class="order-items">
+      <h3>Order Items</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Image</th>
+            <th>Item</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (order.cart && order.cart.length > 0) { %>
+          <% order.cart.forEach((item, index) => { %>
+          <tr>
+            <td><%= index + 1 %></td>
+            <td>
+              <% if(item.image){ %>
+              <img src="<%= item.image %>" alt="<%= item.name %>">
+              <% } else { %>
+              N/A
+              <% } %>
+            </td>
+            <td><%= item.name %></td>
+            <td><%= item.qty %></td>
+            <td>₹<%= item.price.toFixed(2) %></td>
+            <td>₹<%= (item.price * item.qty).toFixed(2) %></td>
+          </tr>
+          <% }) %>
+          <% } else { %>
+          <tr>
+            <td colspan="6" style="text-align:center">No items in cart</td>
+          </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="totals">
+      <div><strong>Amount:</strong> ₹<%= order.amount.toFixed(2) %></div>
+      <div><strong>Discount:</strong> ₹<%= order.discount_amount.toFixed(2) %></div>
+      <div><strong>Total Amount:</strong> ₹<%= order.totalAmount.toFixed(2) %></div>
+      <div><strong>Payment Method:</strong> <%= order.paymentMethod %></div>
+      <div><strong>Status:</strong> <%= order.status %></div>
+    </div>
+
+    <p style="text-align:center; margin-top: 20px; font-size: 13px;">Thank you for your order!</p>
+
+    <div class="buttons">
+      <% if(appUser){ %>
+      <a href="/" class="btn btn-print">POS</a>
+      <% } %>
+      <button class="btn btn-print" onclick="window.print()">Print</button>
+      <% if(order.customerMobile) { %>
+      <a class="btn btn-whatsapp" href="https://wa.me/<%= order.customerMobile %>?text=<%= encodeURIComponent(`Hello ${order.customerName}, your order ${order.orderId} total is ₹${order.totalAmount.toFixed(2)}. You can view your invoice here: ${req.protocol}://${req.get('host')}/invoice/${order.orderId}. Thank you!`) %>" target="_blank">
+        Share via WhatsApp
+      </a>
+      <% } %>
+
+    </div>
+  </div>
+</body>
+
+</html>

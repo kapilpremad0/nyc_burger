@@ -75,17 +75,7 @@ exports.applyCoupon = async (req, res) => {
 
     const finalAmount = cartTotal - discount;
 
-    // Update coupon usage
-    coupon.usedCount = (coupon.usedCount || 0) + 1;
     await coupon.save();
-
-    // Track coupon for user
-    // if (user) {
-    //   user.usedCoupons = user.usedCoupons || [];
-    //   if (!user.usedCoupons.includes(coupon._id)) user.usedCoupons.push(coupon._id);
-    //   await user.save();
-    // }
-
     return res.json({ success: true, discount, finalAmount, message: "Coupon applied successfully" });
   } catch (err) {
     console.error(err);
@@ -97,12 +87,17 @@ exports.applyCoupon = async (req, res) => {
 exports.checkout = async (req, res) => {
   try {
     const { cart, customerName, customerMobile, orderType, paymentMethod, coupon } = req.body;
+    const userId = req.user._id;
+
+    const user = await User.findById(userId)
+      .lean();
 
     // const message = 'Hello! Your order has been confirmed. Thank you for shopping with us.';
     // const recipient = '+919079758684';
     // await sendWhatsApp(recipient, message);
 
     let totalAmount = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+    let totalCartAmount = totalAmount;
     let discount = 0;
 
     // Apply coupon if exists
@@ -120,13 +115,17 @@ exports.checkout = async (req, res) => {
     }
 
     const order = await Order.create({
+      amount: totalCartAmount,
+      discount_amount: discount,
       cart,
       customerName,
       customerMobile,
       orderType,
       paymentMethod,
       coupon,
-      totalAmount
+      totalAmount,
+      order_from: userId,
+      branch: user.branch || null,
     });
 
     res.json({ success: true, orderId: order._id });
@@ -176,3 +175,19 @@ exports.menu = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
+
+exports.invoice = async (req, res) => {
+  try {
+    const order = await Order.findOne({ orderId: req.params.orderId })
+      .populate('branch')   // populate branch name
+      .populate('order_from'); // optional: who created
+
+    if (!order) return res.status(404).send("Order not found");
+
+    res.render('invoice', { order, layout: false ,req  });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error");
+  }
+}
