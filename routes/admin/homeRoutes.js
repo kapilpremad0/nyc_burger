@@ -10,7 +10,7 @@ router.get('/latest-pending-orders', adminAuth, homeController.getLatestPendingO
 router.get('/login', loginController.showLoginPage)
 router.post('/login', loginController.login)
 router.get('/logout', loginController.logout)
-router.get('/stats', homeController.getDashboardStats)
+router.get('/stats',adminAuth, homeController.getDashboardStats)
 
 
 module.exports = router;

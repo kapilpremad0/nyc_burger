@@ -11,6 +11,60 @@
             </div>
 
             <div class="card-body">
+
+              <!-- 🔽 Filters -->
+              <div class="row mb-2">
+                <div class="col-md-2">
+                  <select id="filterOrderType" class="form-control">
+                    <option value="">All Order Types</option>
+                    <option value="dinein">Dine-in</option>
+                    <option value="takeaway">Takeaway</option>
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <select id="filterPayment" class="form-control">
+                    <option value="">All Payment Methods</option>
+                    <option value="cash">Cash</option>
+                    <option value="online">Online</option>
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <select id="filterStatus" class="form-control">
+                    <option value="">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="baked">Baked</option>
+                    <option value="delivered">Delivered</option>
+                  </select>
+                </div>
+
+
+
+               <% if (!appUser.branch) { %>
+                <div class="col-md-3">
+                  <select id="filterBranch" class="form-control">
+                    <option value="">All Branches</option>
+                    <% if (appBranch && appBranch.length) { %>
+                    <% appBranch.forEach(branch => { %>
+                    <option value="<%= branch._id %>"><%= branch.name %></option>
+                    <% }) %>
+                    <% } %>
+                  </select>
+                </div>
+                <% } %>
+
+
+
+                <div class="col-md-3">
+                  <select id="paymentStatusFilter" class="form-select">
+                    <option value="">All Payment Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="completed">Completed</option>
+                  </select>
+                </div>
+
+
+              </div>
+
               <div class="table-responsive card card-company-table">
                 <table class="table" id="ordersTable">
                   <thead>
@@ -19,8 +73,10 @@
                       <th>Order ID</th>
                       <th>Customer Name</th>
                       <th>Mobile</th>
+                      <th>Branch</th>
                       <th>Order Type</th>
                       <th>Payment Method</th>
+                      <th>Payment Status</th>
                       <th>Total Amount</th>
                       <th>Status</th>
                       <th>Date</th>
@@ -43,24 +99,24 @@
       processing: true,
       serverSide: true,
       ajax: {
-        url: '/admin/orders/data', // make sure your controller handles these fields
+        url: '/admin/orders/data',
         type: 'POST',
         contentType: 'application/json',
         data: function(d) {
+          d.orderType = $('#filterOrderType').val();
+          d.paymentMethod = $('#filterPayment').val();
+          d.status = $('#filterStatus').val();
+          d.branchId = $('#filterBranch').val();
+          d.paymentStatus = $('#paymentStatusFilter').val();
           return JSON.stringify(d);
         }
       },
       columns: [{
-          data: null,
-          render: function(data, type, row, meta) {
-            return meta.settings._iDisplayStart + meta.row + 1;
-          },
-          searchable: false
+          data: 'serial'
         },
         {
           data: 'orderId',
           render: function(data, type, row) {
-            // Make orderId a clickable link to order detail page
             return `<a href="/admin/orders/${row._id}" class="text-primary">${data}</a>`;
           }
         },
@@ -73,23 +129,39 @@
           defaultContent: '-'
         },
         {
+          data: 'branch',
+          defaultContent: '-'
+        },
+        {
           data: 'orderType',
-          render: data => data === 'dinein' ?
-            '<span class="badge bg-primary">Dine-in</span>' :
-            '<span class="badge bg-warning">Takeaway</span>'
+          render: function(data) {
+            if (data === 'dinein') return '<span class="badge bg-primary">Dine-in</span>';
+            if (data === 'takeaway') return '<span class="badge bg-warning">Takeaway</span>';
+            return '-';
+          }
         },
         {
           data: 'paymentMethod',
-          render: data => data === 'cash' ?
-            '<span class="badge bg-secondary">Cash</span>' :
-            '<span class="badge bg-success">Online</span>'
+          render: function(data) {
+            if (data === 'cash') return '<span class="badge bg-secondary">Cash</span>';
+            if (data === 'online') return '<span class="badge bg-success">Online</span>';
+            return '-';
+          }
+        },
+        {
+          data: 'paymentStatus', // ✅ New column
+          render: function(data) {
+            if (data === 'completed') return '<span class="badge bg-success">Completed</span>';
+            if (data === 'pending') return '<span class="badge bg-danger">Pending</span>';
+            return '-';
+          }
         },
         {
           data: 'totalAmount'
         },
         {
           data: 'status',
-          render: data => {
+          render: function(data) {
             if (data === 'pending') return '<span class="badge bg-info">Pending</span>';
             if (data === 'baked') return '<span class="badge bg-warning">Baked</span>';
             if (data === 'delivered') return '<span class="badge bg-success">Delivered</span>';
@@ -97,13 +169,17 @@
           }
         },
         {
-          data: 'createdAt',
-          render: d => new Date(d).toLocaleString()
+          data: 'createdAt'
         }
       ],
       drawCallback: function(settings) {
         feather.replace();
       }
+    });
+
+    // 🔄 Reload table when filters change
+    $('#filterOrderType, #filterPayment, #filterStatus, #filterBranch ,#paymentStatusFilter').on('change', function() {
+      table.ajax.reload();
     });
   });
 </script>

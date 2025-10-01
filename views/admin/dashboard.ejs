@@ -68,15 +68,16 @@
                 <table class="table table-bordered" id="pendingOrdersTable">
                   <thead>
                     <tr>
-                      <th>#</th>
                       <th>Order ID</th>
                       <th>Customer Name</th>
                       <th>Mobile</th>
+                      <th>Branch</th>
                       <th>Order Type</th>
-                      <th>Payment</th>
+                      <th>Payment Method</th>
+                      <th>Payment Status</th>
                       <th>Total Amount</th>
                       <th>Status</th>
-                      <th>Order Date</th>
+                      <th>Date</th>
                     </tr>
                   </thead>
                   <tbody></tbody>
@@ -94,13 +95,6 @@
                       dataSrc: ''
                     },
                     columns: [{
-                        data: null,
-                        render: function(data, type, row, meta) {
-                          return meta.row + 1;
-                        },
-                        searchable: false
-                      },
-                      {
                         data: 'orderId',
                         render: function(data, type, row) {
                           return `<a href="/admin/orders/${row._id}" class="text-primary">${data}</a>`;
@@ -115,23 +109,39 @@
                         defaultContent: '-'
                       },
                       {
+                        data: 'branch.name',
+                        defaultContent: '-'
+                      },
+                      {
                         data: 'orderType',
-                        render: data => data === 'dinein' ?
-                          '<span class="badge bg-primary">Dine-in</span>' :
-                          '<span class="badge bg-warning">Takeaway</span>'
+                        render: function(data) {
+                          if (data === 'dinein') return '<span class="badge bg-primary">Dine-in</span>';
+                          if (data === 'takeaway') return '<span class="badge bg-warning">Takeaway</span>';
+                          return '-';
+                        }
                       },
                       {
                         data: 'paymentMethod',
-                        render: data => data === 'cash' ?
-                          '<span class="badge bg-secondary">Cash</span>' :
-                          '<span class="badge bg-success">Online</span>'
+                        render: function(data) {
+                          if (data === 'cash') return '<span class="badge bg-secondary">Cash</span>';
+                          if (data === 'online') return '<span class="badge bg-success">Online</span>';
+                          return '-';
+                        }
+                      },
+                      {
+                        data: 'paymentStatus', // ✅ New column
+                        render: function(data) {
+                          if (data === 'completed') return '<span class="badge bg-success">Completed</span>';
+                          if (data === 'pending') return '<span class="badge bg-danger">Pending</span>';
+                          return '-';
+                        }
                       },
                       {
                         data: 'totalAmount'
                       },
                       {
                         data: 'status',
-                        render: data => {
+                        render: function(data) {
                           if (data === 'pending') return '<span class="badge bg-info">Pending</span>';
                           if (data === 'baked') return '<span class="badge bg-warning">Baked</span>';
                           if (data === 'delivered') return '<span class="badge bg-success">Delivered</span>';
@@ -139,8 +149,7 @@
                         }
                       },
                       {
-                        data: 'createdAt',
-                        render: d => new Date(d).toLocaleString()
+                        data: 'createdAt'
                       }
                     ],
                     order: [

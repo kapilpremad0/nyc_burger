@@ -141,6 +141,8 @@
       <div class="invoice-details">
         <div><strong>Invoice #:</strong> <%= order.orderId %></div>
         <div><strong>Date:</strong> <%= new Date(order.createdAt).toLocaleDateString() %></div>
+        <div><strong>Status:</strong> <%= order.status %></div>
+        <div><strong>Payment Status:</strong> <%= order.paymentStatus %></div>
       </div>
     </div>
 
@@ -149,7 +151,9 @@
       <p>
         <strong>Name:</strong> <%= order.customerName || 'N/A' %><br>
         <strong>Mobile:</strong> <%= order.customerMobile || 'N/A' %><br>
-        <strong>Branch:</strong> <%= order.branch ? order.branch.name : 'N/A' %>
+        <strong>Order Type:</strong> <%= order.orderType %><br>
+        <strong>Branch:</strong> <%= order.branch ? order.branch.name : 'N/A' %><br>
+        <strong>Placed By:</strong> <%= order.order_from ? order.order_from.name : 'N/A' %>
       </p>
     </div>
 
@@ -172,8 +176,8 @@
           <tr>
             <td><%= index + 1 %></td>
             <td>
-              <% if(item.image){ %>
-              <img src="<%= item.image %>" alt="<%= item.name %>">
+              <% if(item.img){ %>
+              <img src="/uploads/<%= item.img %>" alt="<%= item.name %>">
               <% } else { %>
               N/A
               <% } %>
@@ -197,8 +201,10 @@
       <div><strong>Amount:</strong> ₹<%= order.amount.toFixed(2) %></div>
       <div><strong>Discount:</strong> ₹<%= order.discount_amount.toFixed(2) %></div>
       <div><strong>Total Amount:</strong> ₹<%= order.totalAmount.toFixed(2) %></div>
+      <div><strong>Coupon:</strong> <%= order.coupon || 'N/A' %></div>
       <div><strong>Payment Method:</strong> <%= order.paymentMethod %></div>
-      <div><strong>Status:</strong> <%= order.status %></div>
+      <div><strong>Razorpay Order ID:</strong> <%= order.razorpay_order_id || 'N/A' %></div>
+      <div><strong>Razorpay Payment ID:</strong> <%= order.razorpay_payment_id || 'N/A' %></div>
     </div>
 
     <p style="text-align:center; margin-top: 20px; font-size: 13px;">Thank you for your order!</p>
@@ -206,14 +212,13 @@
     <div class="buttons">
       <% if(appUser){ %>
       <a href="/" class="btn btn-print">POS</a>
-      <% } %>
-      <button class="btn btn-print" onclick="window.print()">Print</button>
       <% if(order.customerMobile) { %>
       <a class="btn btn-whatsapp" href="https://wa.me/<%= order.customerMobile %>?text=<%= encodeURIComponent(`Hello ${order.customerName}, your order ${order.orderId} total is ₹${order.totalAmount.toFixed(2)}. You can view your invoice here: ${req.protocol}://${req.get('host')}/invoice/${order.orderId}. Thank you!`) %>" target="_blank">
         Share via WhatsApp
       </a>
       <% } %>
-
+      <% } %>
+      <button class="btn btn-print" onclick="window.print()">Print</button>
     </div>
   </div>
 </body>

@@ -13,5 +13,6 @@ router.post('/data', adminAuth, authorize('order', 'list'), ordersController.get
 
 // Get single order details (requires permission 'order:show')
 router.get('/:id', adminAuth, authorize('order', 'list'), ordersController.getDetail);
+router.post('/:id/update-status',authorize('order', 'action'), ordersController.updateStatus)
 
 module.exports = router;
