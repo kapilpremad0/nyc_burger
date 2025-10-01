@@ -128,7 +128,7 @@ exports.checkout = async (req, res) => {
       branch: user.branch || null,
     });
 
-    res.json({ success: true, orderId: order._id });
+    res.json({ success: true, orderId: order._id ,order });
   } catch (err) {
     console.error(err);
     res.json({ success: false, message: "Failed to place order" });

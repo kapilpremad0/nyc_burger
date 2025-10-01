@@ -6,6 +6,62 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title><%= appName %> — Menu with Cart</title>
 
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+  <!-- BEGIN: Vendor JS-->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  <script>
+    function showSuccessToast(message) {
+
+      Toastify({
+        text: message,
+        className: "success",
+        style: {
+          background: "linear-gradient(to right, #00b09b, #96c93d)",
+        }
+      }).showToast();
+
+    }
+
+    function showErrorToast(message) {
+
+      Toastify({
+        text: message,
+        className: "success",
+        style: {
+          background: "linear-gradient(to right, #b73b3c, #b73b3c)",
+        }
+      }).showToast();
+
+    }
+  </script>
+
+  <style>
+    .validation-error {
+      color: red;
+    }
+
+
+    #form-loader {
+      position: fixed;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.92);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    #form-loader img {
+      width: 60px;
+      height: 60px;
+      margin-bottom: 10px;
+    }
+  </style>
+
 
   <style>
     :root {
@@ -434,6 +490,11 @@
 
 <body>
 
+  <div id="form-loader" style="display:none;">
+    <img src="/loder.gif" alt="Loading...">
+    <p class="fw-bold text-gray-700">Submitting, please wait...</p>
+  </div>
+
   <script>
     function toggleSidebar() {
       document.getElementById("sidebar").classList.toggle("active");
@@ -771,14 +832,14 @@
 
   <script>
     async function checkout() {
-      if (Object.keys(cart).length === 0) return alert("Your cart is empty");
+      if (Object.keys(cart).length === 0) return showErrorToast('Your cart is empty');
 
       const customerName = document.querySelector('[name="customer_name"]').value.trim();
       const customerMobile = document.querySelector('[name="customer_mobile"]').value.trim();
       const orderType = document.getElementById("orderType").value;
       const paymentMethod = document.getElementById("paymentMethod").value;
 
-      if (!customerName || !customerMobile) return alert("Please enter customer details");
+      if (!customerName) return showErrorToast('Please enter customer name');
 
       // Prepare order data
       const orderData = {
@@ -791,6 +852,7 @@
       };
 
       try {
+        $('#form-loader').show();
         const res = await fetch("/checkout", {
           method: "POST",
           headers: {
@@ -802,17 +864,30 @@
         const data = await res.json();
 
         if (data.success) {
-          alert("Order placed successfully! Order ID: " + data.orderId);
+          // alert("Order placed successfully! Order ID: " + data.orderId);
           cart = {};
           appliedCoupon = null;
           couponInput.value = "";
           renderCart();
+
+          const order = data.order;
+          let orderId = order.orderId;
+          
+          if (order.paymentMethod == 'online') {
+            payOnline(order.orderId, order.totalAmount, order.customerName, order.customerMobile);
+          }else{
+             window.location.href = `/invoice/${orderId}`;
+             $('#form-loader').hide();
+          }
+         
+
         } else {
-          alert("Checkout failed: " + data.message);
+          $('#form-loader').hide();
+          showErrorToast("Checkout failed: " + data.message)
         }
       } catch (err) {
         console.error(err);
-        alert("Something went wrong during checkout");
+         showErrorToast("Something went wrong during checkout")
       }
     }
   </script>
@@ -897,8 +972,6 @@
       modal.style.display = "flex";
       <% } %>
 
-
-
       // Open modal on button click
       openBtn.addEventListener("click", () => {
         modal.style.display = "flex";
@@ -974,6 +1047,85 @@
       background: #0056b3;
     }
   </style>
+
+
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+  <script>
+    async function payOnline(orderId, amount, customerName, customerMobile) {
+      try {
+        // Create Razorpay order on backend
+        const response = await fetch('/payment/create-order', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            amount,
+            orderId
+          })
+        });
+        const order = await response.json();
+        $('#form-loader').hide();
+        const options = {
+          key: "<%= process.env.RAZORPAY_KEY_ID %>", // Replace with your key_id
+          amount: order.amount,
+          currency: order.currency,
+          name: "<%= appName %>",
+          description: `Order #${orderId}`,
+          order_id: order.id,
+          handler: async function(res) {
+            try {
+              // Send payment info to backend for verification
+              const verifyRes = await fetch('/payment/verify', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  razorpay_order_id: res.razorpay_order_id,
+                  razorpay_payment_id: res.razorpay_payment_id,
+                  razorpay_signature: res.razorpay_signature,
+                  orderId, // Your orderId
+                  amount // Total amount paid
+                })
+              });
+
+              const data = await verifyRes.json();
+
+              if (data.success) {
+                showSuccessToast("Payment completed successfully!")
+                // Optionally redirect to invoice or orders page
+                window.location.href = `/invoice/${orderId}`;
+              } else {
+                showErrorToast("Payment verification failed: " + data.message)
+              }
+
+            } catch (err) {
+              console.error(err);
+              showErrorToast("Something went wrong while verifying payment")
+            }
+          },
+          prefill: {
+            name: customerName,
+            contact: customerMobile
+          },
+          theme: {
+            color: "#2980b9"
+          }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.open();
+
+      } catch (err) {
+        console.error(err);
+         showErrorToast("Failed to initiate payment")
+      }
+    }
+
+    // Trigger payment if online
+  </script>
 
 
 </body>

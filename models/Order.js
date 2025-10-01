@@ -58,6 +58,9 @@ const orderSchema = new mongoose.Schema({
     ref: 'User', // Reference to the User model
     default: null
   },
+  paymentStatus: { type: String, enum: ['pending', 'completed'], default: 'pending' },
+  razorpay_order_id: { type: String, default: null },
+  razorpay_payment_id: { type: String, default: null },
   createdAt: {
     type: Date,
     default: Date.now
