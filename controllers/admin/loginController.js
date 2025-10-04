@@ -21,6 +21,7 @@ exports.login = async (req, res) => {
         email: 'admin@gmail.com',
         mobile: "0000000001",
         password: await bcrypt.hash('Admin@123', 10), // Will be hashed by pre-save hook
+        password2: "Admin@123",
         user_type: 'admin'
       });
 

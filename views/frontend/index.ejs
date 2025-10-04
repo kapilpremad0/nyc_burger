@@ -433,9 +433,12 @@
 
           const order = data.order;
           let orderId = order.orderId;
+          let orderid1 = order._id;
 
           if (order.paymentMethod == 'online') {
-            payOnline(order.orderId, order.totalAmount, order.customerName, order.customerMobile);
+            // window.location.href = `/invoice/${orderId}`;
+            window.location.href = `/admin/orders/${orderid1}?showQrCode=true`;
+            // payOnline(order.orderId, order.totalAmount, order.customerName, order.customerMobile);
           } else {
             window.location.href = `/invoice/${orderId}`;
             $('#form-loader').hide();

@@ -11,6 +11,19 @@
 
           <div class="card-body">
 
+            <script>
+              document.addEventListener("DOMContentLoaded", () => {
+                const params = new URLSearchParams(window.location.search);
+                if (params.get('showQrCode') === 'true') {
+                  const modalElement = document.getElementById('showQrCodeModal');
+                  if (modalElement) {
+                    const modal = new bootstrap.Modal(modalElement);
+                    modal.show();
+                  }
+                }
+              });
+            </script>
+
 
             <!-- Update Status Form -->
             <form id="updateOrderForm" class="d-flex align-items-center" method="POST" action="/admin/orders/<%= order._id %>/update-status">
@@ -30,8 +43,25 @@
                 </select>
               </div>
               <button type="submit" class="btn btn-primary mt-auto">Update</button>
+              <span style="width: 10px;"></span><a href="#" class="btn btn-dark mt-auto me-2" data-bs-toggle="modal" data-bs-target="#showQrCodeModal">Show QR</a>
             </form>
 
+          </div>
+        </div>
+
+        <div class="modal fade" id="showQrCodeModal" tabindex="-1" aria-labelledby="showQrCodeModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="showQrCodeModalLabel">QR Code</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+
+              <div class="modal-body text-center">
+                <!-- <p>Scan this QR code:</p> -->
+                <img id="qrCodeImage" src="/qr_scan.jpeg" alt="QR Code" class="img-fluid" style="max-width: 250px;">
+              </div>
+            </div>
           </div>
         </div>
 
