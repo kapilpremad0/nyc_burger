@@ -211,7 +211,7 @@
 
     <div class="buttons">
       <% if(appUser){ %>
-      <a href="/" class="btn btn-print">POS</a>
+      <a href="/pos" class="btn btn-print">POS</a>
       <% if(order.customerMobile) { %>
       <a class="btn btn-whatsapp" href="https://wa.me/<%= order.customerMobile %>?text=<%= encodeURIComponent(`Hello ${order.customerName}, your order ${order.orderId} total is ₹${order.totalAmount.toFixed(2)}. You can view your invoice here: ${req.protocol}://${req.get('host')}/invoice/${order.orderId}. Thank you!`) %>" target="_blank">
         Share via WhatsApp

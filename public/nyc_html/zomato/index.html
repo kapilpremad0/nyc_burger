@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NYC Burgers - Order Now on Zomato | Fresh Gourmet Burgers Delivered</title>
+    <meta name="description" content="Order fresh, juicy gourmet burgers from Jaipur's top-rated restaurant. 4.8★ on Zomato. Free delivery in 25-35 mins. Special offer: 20% OFF on orders above ₹500.">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="NYC Burgers - Order Now on Zomato">
+    <meta property="og:description" content="Fresh, juicy burgers delivered hot to your door. 4.8★ rated on Zomato.">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=630">
+    <meta property="og:url" content="https://nycburgers.in/order">
+    <meta property="og:type" content="website">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Background Image -->
+        <div class="hero-bg"></div>
+        
+        <!-- Overlay -->
+        <div class="hero-overlay"></div>
+        
+        <!-- Content -->
+        <div class="content">
+            <!-- Navigation -->
+            <nav class="nav">
+                <div class="nav-brand">
+                    <div class="logo">
+                        <i class="fas fa-hamburger"></i>
+                    </div>
+                    <span class="brand-name">NYC Burgers</span>
+                </div>
+                <div class="nav-location">
+                    <span class="location-full">📍 Jaipur</span>
+                    <span class="location-short">📍 NYC</span>
+                </div>
+            </nav>
+
+            <!-- Hero Content -->
+            <div class="hero-content">
+                <div class="hero-wrapper">
+                    <!-- Rating Badge -->
+                    <div class="rating-badge" data-testid="rating-badge">
+                        <i class="fas fa-star"></i>
+                        <span>4.8★ Rated on Zomato</span>
+                    </div>
+
+                    <!-- Main Headline -->
+                    <h1 class="hero-title">
+                        Jaipur's Most <span class="highlight">Delicious</span> Burgers
+                    </h1>
+
+                    <!-- Subheadline -->
+                    <p class="hero-subtitle">
+                        Fresh, juicy, and made to perfection.<br>
+                        <span class="subtitle-highlight">Delivered hot to your door!</span>
+                    </p>
+
+                    <!-- Social Proof -->
+                    <div class="social-proof">
+                        <div class="proof-item">
+                            <i class="fas fa-clock"></i>
+                            <span>25-35 min</span>
+                        </div>
+                        <div class="proof-divider"></div>
+                        <div class="proof-item">
+                            <i class="fas fa-motorcycle"></i>
+                            <span>Free Delivery</span>
+                        </div>
+                        <div class="proof-divider"></div>
+                        <div class="proof-item">
+                            <i class="fas fa-heart"></i>
+                            <span>2K+ Orders</span>
+                        </div>
+                    </div>
+
+                    <!-- Main CTA Button -->
+                    <div class="cta-section">
+                        <button 
+                            id="main-cta" 
+                            class="btn btn-primary pulse-glow" 
+                            data-testid="button-order-zomato"
+                            onclick="handleCTAClick()"
+                        >
+                            <span class="btn-text">🔥 Order Now on Zomato</span>
+                            <span class="btn-loading" style="display: none;">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                Redirecting...
+                            </span>
+                        </button>
+                    </div>
+
+                    <!-- Trust Indicators -->
+                    <div class="trust-indicators">
+                        <div class="trust-item">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>100% Safe</span>
+                        </div>
+                        <div class="trust-item">
+                            <i class="fas fa-money-bill-wave"></i>
+                            <span>Best Prices</span>
+                        </div>
+                        <div class="trust-item">
+                            <i class="fas fa-thumbs-up"></i>
+                            <span>Fresh Daily</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Section -->
+            <div class="bottom-section">
+                <!-- Special Offers Strip -->
+                <div class="offer-strip">
+                    <p>🎉 <strong>Special Offer:</strong> Get 20% OFF on orders above ₹500</p>
+                </div>
+
+                <!-- Popular Items Preview -->
+                <div class="popular-items">
+                    <h3>🍔 Today's Bestsellers</h3>
+                    
+                    <div class="items-grid">
+                        <div class="item" data-testid="item-1">
+                            <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&h=200" alt="Classic Cheeseburger" loading="lazy">
+                            <p class="item-name">Classic Cheese</p>
+                            <p class="item-price">₹299</p>
+                        </div>
+                        <div class="item" data-testid="item-2">
+                            <img src="https://images.unsplash.com/photo-1551782450-17144efb9c50?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200" alt="BBQ Bacon Burger" loading="lazy">
+                            <p class="item-name">BBQ Bacon</p>
+                            <p class="item-price">₹399</p>
+                        </div>
+                        <div class="item" data-testid="item-3">
+                            <img src="https://images.unsplash.com/photo-1525755662778-989d0524087e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&h=200" alt="Veggie Burger" loading="lazy">
+                            <p class="item-name">Veggie Delight</p>
+                            <p class="item-price">₹249</p>
+                        </div>
+                    </div>
+
+                    <div class="more-options">
+                        <p>
+                            <i class="fas fa-plus-circle"></i>
+                            View 15+ more options on Zomato
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Secondary CTA Button -->
+                <div class="secondary-cta">
+                    <button 
+                        class="btn btn-secondary" 
+                        data-testid="button-order-secondary"
+                        onclick="handleCTAClick()"
+                    >
+                        <span>🔥</span>
+                        <span>Order Now</span>
+                        <i class="fas fa-external-link-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating Action Button -->
+        <div class="floating-btn">
+            <button 
+                class="btn btn-floating bounce-subtle" 
+                aria-label="Quick Order"
+                data-testid="button-floating-order"
+                onclick="handleCTAClick()"
+            >
+                🍔
+            </button>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="loading-overlay" style="display: none;">
+            <div class="loading-card">
+                <div class="spinner"></div>
+                <p>Redirecting to Zomato...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schema.org structured data for SEO -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Restaurant",
+        "name": "NYC Burgers",
+        "description": "Fresh gourmet burgers delivered to your door",
+        "url": "https://nycburgers.in",
+        "telephone": "+917426841918",
+        "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Jaipur",
+            "addressRegion": "Rajasthan",
+            "addressCountry": "India"
+        },
+        "servesCuisine": "American",
+        "priceRange": "$$",
+        "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.8",
+            "reviewCount": "2000+"
+        }
+    }
+    </script>
+
+    <script src="script.js"></script>
+</body>
+</html>
